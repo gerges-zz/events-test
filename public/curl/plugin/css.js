@@ -152,7 +152,14 @@
 	 */
 	function loadHandler (link, cb) {
 		link.onload = function () {
-			tracker.trackEvent("link-onload");
+			// @gerges -- THIS CODE IS MODIFIED FOR INSTRUMENTATION
+ 			if (document.getElementById("bar").offsetTop > 200) {
+ 				tracker.trackEvent("link-onload::with-styles-applied");
+ 			} else {
+ 				tracker.trackEvent("link-onload::with-styles-not-applied");
+ 			}
+ 			// @gerges -- END MODIFICATIONS
+
 			// we know browser is compliant now!
 			setLoadDetection('load', true);
 			cb();
