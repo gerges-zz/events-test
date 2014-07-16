@@ -2,9 +2,45 @@
 <html>
 <head>
 	<title>Test</title>
-	<script type="text/javascript" src="js/EventTracker.js"></script>
+	<script type="text/javascript" src="tester/EventTracker.js"></script>
+	<script type="text/javascript" src="curl/curl.js"></script>
+	<script type="text/javascript">
+		document.onreadystatechange = function () {
+	    	tracker && tracker.trackEvent("ready-state-" + document.readyState);
+		};
+	</script>
 </head>
 <body>
+	<div id="foo"></div>
+	<div id="bar"></div>
 
+	<img src="/timed-static/5000/tester/lol.gif" />
+
+	<div id="console"></div>
+<script>
+	var tracker = new EventTracker();
+	tracker.startTracking();
+	curl(["css!/timed-static/2500/tester/slow-loading.css"]).then(function(css) {
+		var offsetTop = document.getElementById("bar").offsetTop;
+
+		tracker.trackEvent("curl-deferred-resolved");
+
+		if (offsetTop <= 200) {
+			tracker.trackEvent("styles-not-applied");
+		}
+	});
+
+	setInterval(function() {
+		document.getElementById("console").innerHTML = "<b>Events were tracked in the following order:</b> " + tracker.getEvents().join(", ");
+	}, 1000);
+
+	var stylesApplied;
+	setInterval(function() {
+		if (!stylesApplied && document.getElementById("bar").offsetTop > 200) {
+			stylesApplied = true;
+			tracker.trackEvent("styles-applied");
+		}
+	}, 1);
+</script>
 </body>
 </html>
